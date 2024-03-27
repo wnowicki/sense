@@ -1,5 +1,5 @@
-from sense_hat import SenseHat
-# from sense_emu import SenseHat
+# from sense_hat import SenseHat
+from sense_emu import SenseHat
 from time import sleep
 from random import randint
 
@@ -12,6 +12,8 @@ track = [[blank for x in range(8)] for y in range(8)]
 distance = 0
 car_position = 4
 obstacle_buffer = 2
+speed = 0.5
+acc = 0
 
 sense = SenseHat()
 
@@ -58,12 +60,17 @@ def gen_track():
 
 
 def joystick_moved(event):
-    global car_position
+    global car_position, acc
     if event.action == 'pressed':
         if event.direction == 'left':
             car_position -= 1
         elif event.direction == 'right':
             car_position += 1
+        elif event.direction == 'up':
+            acc = -0.3
+
+    if event.action == 'released' and event.direction == 'up':
+        acc = 0
 
 
 def normalise_position(x):
@@ -79,4 +86,7 @@ if __name__ == '__main__':
         draw(draw_car(track[distance:distance + 8]))
 
         distance += 1
-        sleep(0.5)
+        sleep(speed + acc)
+
+        if distance % 50 == 0:
+            speed -= 0.05
